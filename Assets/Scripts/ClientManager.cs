@@ -12,8 +12,9 @@ public class ClientManager : MonoBehaviour {
 
     NetworkClient client; //Define the network client.
 
-    public string ipAddress = "127.0.0.1";
-    public int port = 4444;
+    public string ipAddress = "127.0.0.1"; //Server IP Address.
+    public int port = 4444; //Server Port.
+    public string clientVersion = "0.0.2"; //Client version.
 
     public string inputBox = ""; //Create an empty string for the input box.
     bool pressedEnter = false; //Check if the Enter key has been pressed
@@ -25,9 +26,11 @@ public class ClientManager : MonoBehaviour {
 	void Start () {
 
         client = new NetworkClient(); //Initialize the network client.
+        messages.Add("Connecting to server.");
         client.Connect(ipAddress, port); //Connect to the server Ip on this port.
         client.RegisterHandler(MsgType.Connect, OnConnected); //Register method to call on connect.
-        client.RegisterHandler(DataManager.Type.Message, OnMessage); //Register method to call when message received from server.
+        client.RegisterHandler(MsgType.Error, OnError); //Called on network error.
+        client.RegisterHandler(Data.Msg, OnMessage); //Register method to call when message received from server.
 
 	}
 	
@@ -49,41 +52,60 @@ public class ClientManager : MonoBehaviour {
     //Method called when connection successful.
     public void OnConnected(NetworkMessage netMsg)
     {
-        Debug.Log("Connected to server");
+        messages.Add("Connected to the server.");
+    }
+
+    //Method called on network error (failed connection)/
+    public void OnError(NetworkMessage netMsg)
+    {
+        messages.Add("Failed to connect to the server.");
     }
 
     //When a message is received from the server.
     public void OnMessage(NetworkMessage netMsg)
     {
-        messages.Add(netMsg.ReadMessage<DataManager.Message>().msg); //Add the message to the messages list.
+        messages.Add(netMsg.ReadMessage<Data.Message>().message);//Add the message to the messages list.
     }
 
     //Send the string to the server.
     public void SendInput(string text)
     {
-        DataManager.Message msg = new DataManager.Message();
-        msg.msg = text;
-        client.Send(DataManager.Type.Message, msg);
+        //Send message to server.
+
+        messages.Add(text);
+        scrollPosition.y = messages.Count * 100;
     }
 
     void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height - 20));
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(Screen.width), GUILayout.Height(Screen.height - 20));
-        foreach(string s in messages)
-        {
-            GUILayout.Label(s);
-        }
-        GUILayout.EndScrollView();
+        GUILayout.BeginArea(new Rect(0, 0, Screen.width, 200));
+            GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                GUILayout.Label("UniMud - v" + clientVersion);
+                GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
         GUILayout.EndArea();
-        GUILayout.BeginArea(new Rect(0, Screen.height - 20, Screen.width, 20));
-        GUILayout.BeginHorizontal();
-        if (Event.current.Equals(Event.KeyboardEvent("return")))
-        {
-            pressedEnter = true;
-        }
-        inputBox = GUILayout.TextField(inputBox, 25, GUILayout.Width(Screen.width));
-        GUILayout.EndHorizontal();
+
+        GUILayout.BeginArea(new Rect(20, 20, Screen.width - 40, Screen.height - 40));
+            GUILayout.BeginVertical("box");
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+                    foreach(string s in messages)
+                    {
+                        GUILayout.Label(s);
+                    }
+                GUILayout.EndScrollView();
+                if (Event.current.Equals(Event.KeyboardEvent("return")))
+                {
+                    pressedEnter = true;
+                }
+                GUILayout.BeginHorizontal();
+                    inputBox = GUILayout.TextField(inputBox);
+                    if(GUILayout.Button("Submit", GUILayout.Width(75)))
+                    {
+                        pressedEnter = true;
+                    }
+                GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
         GUILayout.EndArea();
     }
 
