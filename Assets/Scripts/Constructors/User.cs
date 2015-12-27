@@ -1,21 +1,18 @@
-﻿using SimpleSQL;
-using System.Collections.Generic;
+﻿public class User {
 
-public class User {
+    public int ID { get; set; }
+    public string Name { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+    public string Characters { get; set; }
+    public int ClientID { get; set; }
 
-    [PrimaryKey, AutoIncrement]
-    public int UserID { get; set; }
-
-    [Indexed, MaxLength(60), NotNull]
-    public string UserName { get; set; }
-
-    [NotNull, MaxLength(100)]
-    public string UserPassword { get; set; }
-
-    [NotNull, MaxLength(100)]
-    public string UserEMail { get; set; }
-
-    public string UserCharacters { get; set; }
-
-    public int UserClientID;
+    /*public User(int newID, string newName, string newPassword, string newEmail, string newCharacters)
+    {
+        ID = newID;
+        Name = newName;
+        Password = newPassword;
+        Email = newEmail;
+        Characters = newCharacters;
+    }*/
 }

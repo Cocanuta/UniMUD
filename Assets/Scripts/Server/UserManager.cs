@@ -4,21 +4,25 @@ using System.Linq;
 
 public class UserManager : MonoBehaviour {
 
-    public SimpleSQL.SimpleSQLManager dbManager; //The Database Manager.
+    private DatabaseManager dbManager;
 
     public List<User> OnlineUsers = new List<User>(); //An active list of Online Users for quick access.
 
+    void Awake()
+    {
+        dbManager = this.GetComponent<DatabaseManager>();
+    }
     //Grab the next available ID in the users list.
     //This is isn't needed as the database auto-increments.
     public int GetNextID()
     {
-        List<User> users = new List<User>(from u in dbManager.Table<User>() select u);
+        List<User> users = new List<User>(from u in dbManager.GetAllUsers() select u);
         int id = 0;
         foreach(User u in users)
         {
-            if(u.UserID >= id)
+            if(u.ID >= id)
             {
-                id = u.UserID + 1;
+                id = u.ID + 1;
             }
         }
         return id;
@@ -26,9 +30,9 @@ public class UserManager : MonoBehaviour {
 	
 	public void AddUser(string username, string password, string email)
     {
-        User user = new User {UserID = GetNextID(), UserName = username, UserPassword = password, UserEMail = email};
+        User user = new User {ID = GetNextID(), Name = username, Password = password, Email = email};
 
-        dbManager.Insert(user);
+        dbManager.AddUser(user);
 
     }
 
@@ -36,11 +40,11 @@ public class UserManager : MonoBehaviour {
     {
         foreach(User u in OnlineUsers)
         {
-            if(clientId && u.UserClientID == id)
+            if(clientId && u.ClientID == id)
             {
                 return true;
             }
-            else if(clientId && u.UserID == id)
+            else if(clientId && u.ID == id)
             {
                 return true;
             }
@@ -52,7 +56,7 @@ public class UserManager : MonoBehaviour {
     {
         foreach (User u in OnlineUsers)
         {
-            if (u.UserName == username)
+            if (u.Name == username)
             {
                 return true;
             }
@@ -69,14 +73,14 @@ public class UserManager : MonoBehaviour {
         }
         else
         {
-            List<User> users = new List<User>(from u in dbManager.Table<User>() where u.UserName == username select u);
+            List<User> users = new List<User>(from u in dbManager.GetAllUsers() where u.Name == username select u);
             if (users.Count == 1)
             {
-                if (users[0].UserPassword == password)
+                if (users[0].Password == password)
                 {
                     error = "Success!";
                     User userToLogIn = users[0];
-                    userToLogIn.UserClientID = clientId;
+                    userToLogIn.ClientID = clientId;
                     OnlineUsers.Add(userToLogIn);
                     return true;
                 }
@@ -96,30 +100,22 @@ public class UserManager : MonoBehaviour {
 
     public void Logout(int userId)
     {
-        List<User> users = new List<User>(from u in dbManager.Table<User>() where u.UserID == userId select u);
+        List<User> users = new List<User>(from u in dbManager.GetAllUsers() where u.ID == userId select u);
         User userToLogout = null;
         foreach(User u in OnlineUsers)
         {
-            if(u.UserID == userId)
+            if(u.ID == userId)
             {
                 userToLogout = u;
             }
         }
         if(userToLogout != null)
         {
-            dbManager.UpdateTable(userToLogout);
+            dbManager.UpdateUser(userToLogout);
             OnlineUsers.Remove(userToLogout);
         }
         
     }
-    /*
-    public int[] GetCharacters(int UserID)
-    {
-        List<User> users = new List<User>(from u in dbManager.Table<User>() where u.UserID == UserID select u);
-        int[] characterIDs = users[0].UserCharacters.Split(',').Select(n => System.Convert.ToInt32(n)).ToArray();
-        return characterIDs;
-    }
-    */
 
     
 }
