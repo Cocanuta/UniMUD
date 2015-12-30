@@ -4,20 +4,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-public class DatabaseManager : MonoBehaviour
+public class DatabaseManager
 {
-
-    public string host, database, user, password; //MySQL Database information
-    public bool pooling = true; //Enable or disable MySQL pooling
-
     private string connectionString; //String to hold the connection information
     public MySqlConnection con = null; //Holds the connection
     public MySqlCommand cmd = null; //Holds the commands passed to the MySQL server
     public MySqlDataReader rdr = null; //Used to read the MySQL data retreived
 
     // Use this for initialization
-    void Awake()
+    public DatabaseManager(string host, string database, string user, string password, bool pooling)
     {
+
         //construt the connection string
         connectionString = "Server=" + host + ";Database=" + database + ";UiD=" + user + ";Pwd=" + password + ";Pooling=";
         //Toggle pooling
@@ -42,18 +39,6 @@ public class DatabaseManager : MonoBehaviour
             Debug.Log(ex);
         }
 
-    }
-
-    //When the application quits, close the connection
-    void OnApplicationQuit()
-    {
-        Debug.Log("Closing Connection");
-        if (con != null)
-        {
-            if (con.State != ConnectionState.Closed)
-                con.Close();
-            con.Dispose();
-        }
     }
 
     //A method to update all users from a list.

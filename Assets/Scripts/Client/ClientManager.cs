@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using System.Collections.Generic;
+using WebSocketSharp;
 
 /// <summary>
 /// The controller for all the client actions.
@@ -23,19 +24,29 @@ public class ClientManager : MonoBehaviour {
     List<string> messages = new List<string>(); //A list containing all received messages.
 
 	// Use this for initialization
-	void Start () {
+	void Start()
+    {
 
         client = new NetworkClient(); //Initialize the network client.
-        messages.Add("Connecting to server.");
+        messages.Add("Connecting to server. (" + ipAddress + ":" + port + ")");
         client.Connect(ipAddress, port); //Connect to the server Ip on this port.
         client.RegisterHandler(MsgType.Connect, OnConnected); //Register method to call on connect.
         client.RegisterHandler(MsgType.Error, OnError); //Called on network error.
         client.RegisterHandler(Data.Msg, OnMessage); //Register method to call when message received from server.
-
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void OnMsg(object sender, MessageEventArgs e)
+    {
+        messages.Add(e.ToString());
+    }
+
+    private void OnCon(object sender, System.EventArgs e)
+    {
+        messages.Add("Connected to the server.");
+    }
+
+    // Update is called once per frame
+    void Update () {
 
         if(pressedEnter) //if pressedEnter becomes true.
         {
@@ -70,7 +81,9 @@ public class ClientManager : MonoBehaviour {
     //Send the string to the server.
     public void SendInput(string text)
     {
-        //Send message to server.
+        Data.Message msg = new Data.Message();
+        msg.message = text;
+        client.Send(Data.Msg, msg);
 
         messages.Add(text);
         scrollPosition.y = messages.Count * 100;

@@ -2,34 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class CharacterManager : MonoBehaviour {
-
-    private DatabaseManager dbManager;
-
-    public List<Character> OnlineCharacters = new List<Character>();
-
-    void Awake()
-    {
-        dbManager = this.GetComponent<DatabaseManager>();
-    }
-
-    int GetNextID()
-    {
-        List<Character> characters = new List<Character>(from c in dbManager.GetAllCharacters() select c);
-        int id = 0;
-        foreach(Character c in characters)
-        {
-            if(c.ID >= id)
-            {
-                id = c.ID + 1;
-            }
-        }
-        return id;
-    }
+public class CharacterManager {
 
     public Character GetCharacter(int id)
     {
-        List<Character> characters = new List<Character>(from c in dbManager.GetAllCharacters() where c.ID == id select c);
+        List<Character> characters = new List<Character>(from c in ServerManager.dbManager.GetAllCharacters() where c.ID == id select c);
         if(characters.Count == 1)
         {
             return characters[0];
@@ -43,11 +20,21 @@ public class CharacterManager : MonoBehaviour {
 
     public void AddCharacter(int userID, string charName)
     {
-        Character character = new Character { ID = GetNextID(), Name = charName, HP = 100, Location = 0 };
+        Character character = new Character { Name = charName, HP = 100, Location = 0 };
 
-        dbManager.AddCharacter(character);
+        ServerManager.dbManager.AddCharacter(character);
 
-        OnlineCharacters.Add(character);
+        User user = UserManager.GetUser(userID);
+
+        if(user.Characters.Length == 0)
+        {
+            user.Characters += ServerManager.dbManager.GetCharacter(charName);
+        }
+        else
+        {
+            user.Characters += "," + ServerManager.dbManager.GetCharacter(charName);
+        }
+
     }
 
 }

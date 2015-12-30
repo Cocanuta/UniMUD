@@ -133,8 +133,8 @@ Camera:
   m_GameObject: {fileID: 982576403}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0.019607844}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.28627452, g: 0.28627452, b: 0.28627452, a: 0.019607844}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -180,9 +180,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 1529243250}
   - 114: {fileID: 1529243248}
-  - 114: {fileID: 1529243252}
-  - 114: {fileID: 1529243251}
-  - 114: {fileID: 1529243249}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -198,21 +195,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1529243247}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d4490384f3f17c4e99ae3993ca24f92, type: 3}
+  m_Script: {fileID: 11500000, guid: 5475e64958026e941ba6e3b5dc6fcd0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Port: 4444
---- !u!114 &1529243249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1529243247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9018db984653fab4e9f9269233e484df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  ipAddress: 127.0.0.1
+  port: 4444
+  clientVersion: 0.0.2
+  inputBox: 
+  scrollPosition: {x: 0, y: 0}
 --- !u!4 &1529243250
 Transform:
   m_ObjectHideFlags: 0
@@ -225,30 +215,3 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
---- !u!114 &1529243251
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1529243247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6703a7157af33644962bdf45eb22704, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1529243252
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1529243247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bcfb73efb5ae5644bdefca4069fe9c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  host: 
-  database: 
-  user: 
-  password: 
-  pooling: 1
