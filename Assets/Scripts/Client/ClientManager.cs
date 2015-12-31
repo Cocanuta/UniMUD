@@ -75,7 +75,18 @@ public class ClientManager : MonoBehaviour {
     //When a message is received from the server.
     public void OnMessage(NetworkMessage netMsg)
     {
-        messages.Add(netMsg.ReadMessage<Data.Message>().message);//Add the message to the messages list.
+        Data.Message clientMessage = netMsg.ReadMessage<Data.Message>();
+        string message = ""; 
+
+        if (clientMessage.type == Data.messageType.Standard) // Normal messages.
+        {
+            message = clientMessage.message;
+        }
+        if (clientMessage.type == Data.messageType.Error) // Error messages.
+        {
+            message = "<b><color=yellow>"+clientMessage.message+"</color></b>";
+        }
+        messages.Add(message); // Add the message to the display.
     }
 
     //Send the string to the server.

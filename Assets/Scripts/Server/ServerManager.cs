@@ -11,6 +11,10 @@ public class ServerManager : MonoBehaviour {
     public static DatabaseManager dbManager;
     public static List<User> OnlineUsers = new List<User>();
     public static List<Character> OnlineCharacters = new List<Character>();
+	public enum commandType { None,Engine,Movement,Action,Combat,Inventory };
+
+    // All possible movement commands.
+    public static string movementCommands = ",n,ne,e,se,s,sw,w,nw,north,northeast,east,southeast,south,southwest,west,northwest,move,walk,run,sneak,travel,u,d,up,down,enter,exit,";
 
 
     // Use this for initialization
@@ -53,6 +57,34 @@ public class ServerManager : MonoBehaviour {
         //
         //Do stuff when receiving a message from the client.
         //
+
+		// Obtain the client ID, full message, and the message prefix.
+		int clientID = msg.conn.connectionId;
+		string fullMessage = msg.ReadMessage<Data.Message> ().message.ToLower();
+		string[] prefixMessage = fullMessage.Split(' ');
+		commandType messageType = commandType.None;
+
+        // Find out what kind of command has been entered.
+        if (movementCommands.Contains((","+prefixMessage[0]+",").ToString())) { messageType = commandType.Movement; }
+
+        // If the command type is still not assigned, quit out and tell the client the command is invalid.
+        if (messageType.Equals(commandType.None))
+        {
+            SendToClient(Data.messageType.Error, "Invalid command.", clientID);
+            return;
+        }
+
+        // Process movement commands.
+        if (messageType.Equals(commandType.Movement)) { Movement.ProcessCommand(fullMessage, clientID); }
+    }
+
+    // Sends a message to the client with a specified type.
+    public static void SendToClient(Data.messageType type, string message, int id)
+    {
+        Data.Message clientMessage = new Data.Message();
+        clientMessage.type = type;
+        clientMessage.message = message;
+        NetworkServer.SendToClient(id, Data.Msg, clientMessage);
     }
 
     void OnApplicationQuit()
