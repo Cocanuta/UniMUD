@@ -2,7 +2,6 @@
 using UnityEngine.Networking;
 using System.Data;
 using System.Collections.Generic;
-using WebSocketSharp.Server;
 
 public class ServerManager : MonoBehaviour {
 
@@ -11,11 +10,12 @@ public class ServerManager : MonoBehaviour {
     public static DatabaseManager dbManager;
     public static List<User> OnlineUsers = new List<User>();
     public static List<Character> OnlineCharacters = new List<Character>();
-	public enum commandType { None,Engine,Movement,Action,Combat,Inventory };
+    public static List<Planet> Planets;
+
+    public enum commandType { None, Engine, Movement, Action, Combat, Inventory };
 
     // All possible movement commands.
     public static string movementCommands = ",n,ne,e,se,s,sw,w,nw,north,northeast,east,southeast,south,southwest,west,northwest,move,walk,run,sneak,travel,u,d,up,down,enter,exit,";
-
 
     // Use this for initialization
     void Awake ()
@@ -58,14 +58,14 @@ public class ServerManager : MonoBehaviour {
         //Do stuff when receiving a message from the client.
         //
 
-		// Obtain the client ID, full message, and the message prefix.
-		int clientID = msg.conn.connectionId;
-		string fullMessage = msg.ReadMessage<Data.Message> ().message.ToLower();
-		string[] prefixMessage = fullMessage.Split(' ');
-		commandType messageType = commandType.None;
+        // Obtain the client ID, full message, and the message prefix.
+        int clientID = msg.conn.connectionId;
+        string fullMessage = msg.ReadMessage<Data.Message>().message.ToLower();
+        string[] prefixMessage = fullMessage.Split(' ');
+        commandType messageType = commandType.None;
 
         // Find out what kind of command has been entered.
-        if (movementCommands.Contains((","+prefixMessage[0]+",").ToString())) { messageType = commandType.Movement; }
+        if (movementCommands.Contains(("," + prefixMessage[0] + ",").ToString())) { messageType = commandType.Movement; }
 
         // If the command type is still not assigned, quit out and tell the client the command is invalid.
         if (messageType.Equals(commandType.None))

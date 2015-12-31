@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using System.Collections.Generic;
-using WebSocketSharp;
 
 /// <summary>
 /// The controller for all the client actions.
@@ -14,8 +13,8 @@ public class ClientManager : MonoBehaviour {
     NetworkClient client; //Define the network client.
 
     public string ipAddress = "127.0.0.1"; //Server IP Address.
-    public int port = 4444; //Server Port.
-    public string clientVersion = "0.0.2"; //Client version.
+    public int port = 4444; // Server Port.
+    public string clientVersion = "0.0.4"; // Client version.
 
     public string inputBox = ""; //Create an empty string for the input box.
     bool pressedEnter = false; //Check if the Enter key has been pressed
@@ -34,16 +33,6 @@ public class ClientManager : MonoBehaviour {
         client.RegisterHandler(MsgType.Error, OnError); //Called on network error.
         client.RegisterHandler(Data.Msg, OnMessage); //Register method to call when message received from server.
 	}
-
-    private void OnMsg(object sender, MessageEventArgs e)
-    {
-        messages.Add(e.ToString());
-    }
-
-    private void OnCon(object sender, System.EventArgs e)
-    {
-        messages.Add("Connected to the server.");
-    }
 
     // Update is called once per frame
     void Update () {
@@ -76,7 +65,7 @@ public class ClientManager : MonoBehaviour {
     public void OnMessage(NetworkMessage netMsg)
     {
         Data.Message clientMessage = netMsg.ReadMessage<Data.Message>();
-        string message = ""; 
+        string message = "";
 
         if (clientMessage.type == Data.messageType.Standard) // Normal messages.
         {
@@ -84,7 +73,7 @@ public class ClientManager : MonoBehaviour {
         }
         if (clientMessage.type == Data.messageType.Error) // Error messages.
         {
-            message = "<b><color=yellow>"+clientMessage.message+"</color></b>";
+            message = "<b><color=yellow>" + clientMessage.message + "</color></b>";
         }
         messages.Add(message); // Add the message to the display.
     }
@@ -107,6 +96,21 @@ public class ClientManager : MonoBehaviour {
                 GUILayout.FlexibleSpace();
                 GUILayout.Label("UniMud - v" + clientVersion);
                 GUILayout.FlexibleSpace();
+                if(client.isConnected)
+                {
+                    GUI.enabled = false;
+                }
+                else
+                {
+                    GUI.enabled = true;
+                }
+                if(GUILayout.Button("Connect"))
+                {
+                    client.Connect(ipAddress, port);
+                    messages.Add("Connecting to server. (" + ipAddress + ":" + port + ")");
+                }
+                GUI.enabled = true;
+        GUILayout.Space(20);
             GUILayout.EndHorizontal();
         GUILayout.EndArea();
 

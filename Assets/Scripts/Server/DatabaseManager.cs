@@ -327,7 +327,7 @@ public class DatabaseManager
         string query = string.Empty;
         try
         {
-            query = "INSERT INTO Characters(ID, Name, HP, Location) VALUES (?ID, ?Name, ?HP, ?Location)";
+            query = "INSERT INTO Characters(Name, HP, Location) VALUES (?Name, ?HP, ?Location)";
 
             if (con.State != ConnectionState.Open)
             {
@@ -343,8 +343,6 @@ public class DatabaseManager
                     oParam1.Value = c.HP;
                     MySqlParameter oParam2 = cmd.Parameters.Add("?Location", MySqlDbType.VarChar);
                     oParam2.Value = c.Location;
-                    MySqlParameter oParam3 = cmd.Parameters.Add("?ID", MySqlDbType.Int64);
-                    oParam3.Value = c.ID;
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -464,4 +462,311 @@ public class DatabaseManager
         return c;
 
     }
+
+    public void AddPlanet(string name, string description)
+    {
+        string query = string.Empty;
+
+        try
+        {
+            query = "INSERT INTO Planets(Name, Description) VALUES (?Name, ?Description)";
+
+            if(con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    MySqlParameter oParam = cmd.Parameters.Add("?Name", MySqlDbType.VarChar);
+                    oParam.Value = name;
+                    MySqlParameter oParam2 = cmd.Parameters.Add("?Description", MySqlDbType.VarChar);
+                    oParam2.Value = description;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+    }
+
+    public void UpdatePlanet(Planet p)
+    {
+        string query = string.Empty;
+        try
+        {
+            query = "UPDATE Planets SET Name=?Name, Description=?Description WHERE ID=?ID";
+            if(con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    MySqlParameter oParam = cmd.Parameters.Add("?Name", MySqlDbType.VarChar);
+                    oParam.Value = p.name;
+                    MySqlParameter oParam2 = cmd.Parameters.Add("?Description", MySqlDbType.VarChar);
+                    oParam2.Value = p.description;
+                    MySqlParameter oParam3 = cmd.Parameters.Add("?ID", MySqlDbType.Int32);
+                    oParam3.Value = p.id;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+    }
+
+    public Planet GetPlanet(int id)
+    {
+        string query = string.Empty;
+        Planet p = new Planet();
+        try
+        {
+            query = "SELECT * FROM Planets WHERE ID = " + id.ToString();
+
+            if(con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    rdr = cmd.ExecuteReader();
+                    if(rdr.HasRows)
+                    {
+                        while(rdr.Read())
+                        {
+                            p.id = int.Parse(rdr["ID"].ToString());
+                            p.name = rdr["Name"].ToString();
+                            p.description = rdr["Description"].ToString();
+                            //Add Rooms here
+
+                        }
+                        rdr.Dispose();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+        return p;
+    }
+
+    public void AddRoom(int planetId, string shortDescription, string longDescription, int posX, int posY, int posZ, List<RoomItem> contents)
+    {
+        string query = string.Empty;
+
+        try
+        {
+            query = "INSERT INTO Rooms(PlanetID, ShortDescription, LongDescription, PosX, PosY, PosZ, Contents) VALUES (?PlanetID, ?ShortDescription, ?LongDescription, ?PosX, ?PosY, ?PosZ, ?Contents)";
+
+            if (con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    MySqlParameter oParam = cmd.Parameters.Add("?PlanetID", MySqlDbType.Int32);
+                    oParam.Value = planetId;
+                    MySqlParameter oParam2 = cmd.Parameters.Add("?ShortDescription", MySqlDbType.VarChar);
+                    oParam2.Value = shortDescription;
+                    MySqlParameter oParam3 = cmd.Parameters.Add("?LongDescription", MySqlDbType.VarChar);
+                    oParam3.Value = longDescription;
+                    MySqlParameter oParam4 = cmd.Parameters.Add("?PosX", MySqlDbType.Int32);
+                    oParam4.Value = posX;
+                    MySqlParameter oParam5 = cmd.Parameters.Add("?PosY", MySqlDbType.Int32);
+                    oParam5.Value = posY;
+                    MySqlParameter oParam6 = cmd.Parameters.Add("?PosZ", MySqlDbType.Int32);
+                    oParam6.Value = posZ;
+                    MySqlParameter oParam7 = cmd.Parameters.Add("?Contents", MySqlDbType.VarChar);
+                    string roomItems = "";
+                    foreach(RoomItem ri in contents)
+                    {
+                        roomItems += ri.id;
+                        roomItems += ",";
+                    }
+                    roomItems.Remove(roomItems.Length - 1);
+                    oParam7.Value = roomItems;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+    }
+
+    public void UpdateRoom(Room r)
+    {
+        string query = string.Empty;
+        try
+        {
+            query = "UPDATE Rooms SET PlanetID=?PlanetID, ShortDescription=?ShortDescription, LongDescription=?LongDescription, PosX=?PosX, PosY=?PosY, PosZ=?PosZ, Contents=?Contents WHERE ID=?ID";
+
+            if (con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    MySqlParameter oParam = cmd.Parameters.Add("?PlanetID", MySqlDbType.Int32);
+                    oParam.Value = r.planetId;
+                    MySqlParameter oParam2 = cmd.Parameters.Add("?ShortDescription", MySqlDbType.VarChar);
+                    oParam2.Value = r.shortDescription;
+                    MySqlParameter oParam3 = cmd.Parameters.Add("?LongDescription", MySqlDbType.VarChar);
+                    oParam3.Value = r.longDescription;
+                    MySqlParameter oParam4 = cmd.Parameters.Add("?PosX", MySqlDbType.Int32);
+                    oParam4.Value = r.PosX;
+                    MySqlParameter oParam5 = cmd.Parameters.Add("?PosY", MySqlDbType.Int32);
+                    oParam5.Value = r.PosY;
+                    MySqlParameter oParam6 = cmd.Parameters.Add("?PosZ", MySqlDbType.Int32);
+                    oParam6.Value = r.PosZ;
+                    MySqlParameter oParam7 = cmd.Parameters.Add("?Contents", MySqlDbType.VarChar);
+                    string roomItems = "";
+                    foreach(RoomItem ri in r.contents)
+                    {
+                        roomItems += ri.id;
+                        roomItems += ",";
+                    }
+                    roomItems.Remove(roomItems.Length - 1);
+                    oParam7.Value = roomItems;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+    }
+
+    public Room GetRoom(int id)
+    {
+        string query = string.Empty;
+        Room r = new Room();
+        try
+        {
+            query = "SELECT * FROM Rooms WHERE ID = " + id.ToString();
+
+            if (con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    rdr = cmd.ExecuteReader();
+                    if (rdr.HasRows)
+                    {
+                        while (rdr.Read())
+                        {
+                            r.id = int.Parse(rdr["ID"].ToString());
+                            r.shortDescription = rdr["ShortDescription"].ToString();
+                            r.longDescription = rdr["LongDescription"].ToString();
+                            r.planetId = int.Parse(rdr["PlanetID"].ToString());
+                            r.PosX = int.Parse(rdr["PosX"].ToString());
+                            r.PosY = int.Parse(rdr["PosY"].ToString());
+                            r.PosZ = int.Parse(rdr["PosZ"].ToString());
+                            string[] roomItems = rdr["Contents"].ToString().Split(',');
+                            foreach(String s in roomItems)
+                            {
+                                r.contents.Add(GetRoomItem(int.Parse(s)));
+                            }                           
+
+                        }
+                        rdr.Dispose();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+        return r;
+    }
+
+    public void AddRoomItem(int id)
+    {
+        string query = string.Empty;
+
+        try
+        {
+            query = "INSERT INTO RoomItems(ID) VALUES (?ID)";
+
+            if (con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    MySqlParameter oParam = cmd.Parameters.Add("?ID", MySqlDbType.Int32);
+                    oParam.Value = id;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+    }
+
+    public RoomItem GetRoomItem(int id)
+    {
+        string query = string.Empty;
+        RoomItem ri = new RoomItem();
+        try
+        {
+            query = "SELECT * FROM RoomItems WHERE ID = " + id.ToString();
+
+            if (con.State != ConnectionState.Open)
+            {
+                con.Open();
+            }
+            using (con)
+            {
+                using (cmd = new MySqlCommand(query, con))
+                {
+                    rdr = cmd.ExecuteReader();
+                    if (rdr.HasRows)
+                    {
+                        while (rdr.Read())
+                        {
+                            ri.id = int.Parse(rdr["ID"].ToString());
+                        }
+                        rdr.Dispose();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log(ex.ToString());
+        }
+        return ri;
+    }
+
+
+
+
+
 }
