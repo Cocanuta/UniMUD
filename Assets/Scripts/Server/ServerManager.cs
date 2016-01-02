@@ -15,7 +15,7 @@ public class ServerManager : MonoBehaviour {
     public enum commandType { None, Engine, Movement, Action, Combat, Inventory };
 
     // All possible movement commands.
-    public static string movementCommands = ",n,ne,e,se,s,sw,w,nw,north,northeast,east,southeast,south,southwest,west,northwest,move,walk,run,sneak,travel,u,d,up,down,enter,exit,";
+    public static string movementCommands = ",n,ne,e,se,s,sw,w,nw,north,northeast,east,southeast,south,southwest,west,northwest,move,walk,run,sneak,travel,u,d,up,down,en,ex,enter,exit,";
 
     // Use this for initialization
     void Awake ()
