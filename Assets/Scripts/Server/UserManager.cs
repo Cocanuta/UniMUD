@@ -1,41 +1,60 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
-using System;
+using System.Xml;
+using System.Xml.Serialization;
+using System.IO;
 
+[XmlRoot("UserDatabase")]
 public class UserManager {
-	
-	public static void AddUser(string username, string password, string email)
+
+    [XmlArray("Users"), XmlArrayItem("User")]
+    public List<User> Users = new List<User>();
+
+    public void Save()
     {
-
-        User user = new User { Name = username, Password = password, Email = email };
-
-        ServerManager.dbManager.AddUser(user);
-
+        var serializer = new XmlSerializer(typeof(UserManager));
+        using (var stream = new FileStream(Path.Combine(Application.dataPath, "UserDatabase.xml"), FileMode.Create))
+        {
+            serializer.Serialize(stream, this);
+        }
     }
 
-    public static bool UsernameAvailable(string username)
+    public static UserManager Load()
     {
-        List<User> users = ServerManager.dbManager.GetAllUsers();
-        foreach(User u in users)
+        var serializer = new XmlSerializer(typeof(UserManager));
+        using (var stream = new FileStream(Path.Combine(Application.dataPath, "UserDatabase.xml"), FileMode.Open))
         {
-            if(u.Name.ToLower() == username.ToLower())
+            return serializer.Deserialize(stream) as UserManager;
+        }
+    }
+
+
+    public int GetNextID()
+    {
+        int id = 0;
+        foreach(User u in ServerManager.userDatabase.Users)
+        {
+            if(u.ID >= id)
             {
-                return false;
+                id = u.ID + 1;
             }
         }
-        return true;
+        return id;
     }
 
-    public static bool isLoggedIn(int id, bool clientId)
+    public void AddUser(string username, string password, string email)
     {
-        foreach(User u in ServerManager.OnlineUsers)
+        if(!UserExists(username))
         {
-            if(clientId && u.ClientID == id)
-            {
-                return true;
-            }
-            else if(clientId && u.ID == id)
+            ServerManager.userDatabase.Users.Add(new User { ID = GetNextID(), Name = username, Password = password, Email = email, Characters = new List<Character>() });
+        }
+    }
+
+    public bool UserExists(int id)
+    {
+        foreach (User u in ServerManager.userDatabase.Users)
+        {
+            if (u.ID == id)
             {
                 return true;
             }
@@ -43,11 +62,11 @@ public class UserManager {
         return false;
     }
 
-    public static bool isLoggedIn(string username)
+    public bool UserExists(string Name)
     {
-        foreach (User u in ServerManager.OnlineUsers)
+        foreach(User u in ServerManager.userDatabase.Users)
         {
-            if (u.Name == username)
+            if(u.Name.ToLower() == Name.ToLower())
             {
                 return true;
             }
@@ -55,58 +74,9 @@ public class UserManager {
         return false;
     }
 
-    public static bool Login(int clientId, string username, string password)
+    public User GetUser(int id)
     {
-        if (isLoggedIn(username))
-        {
-            return false;
-        }
-        else
-        {
-            List<User> users = new List<User>(from u in ServerManager.dbManager.GetAllUsers() where u.Name == username select u);
-            if (users.Count == 1)
-            {
-                if (users[0].Password == password)
-                {
-                    User userToLogIn = users[0];
-                    userToLogIn.ClientID = clientId;
-                    ServerManager.OnlineUsers.Add(userToLogIn);
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-    }
-
-    public static void Logout(int userId)
-    {
-        User userToLogout = null;
-        foreach(User u in ServerManager.OnlineUsers)
-        {
-            if(u.ID == userId)
-            {
-                userToLogout = u;
-            }
-        }
-        if(userToLogout != null)
-        {
-            ServerManager.dbManager.UpdateUser(userToLogout);
-            ServerManager.OnlineUsers.Remove(userToLogout);
-        }
-        
-    }
-
-    public static User GetUser(int id)
-    {
-        List<User> users = ServerManager.dbManager.GetAllUsers();
-        foreach(User u in users)
+        foreach(User u in ServerManager.userDatabase.Users)
         {
             if(u.ID == id)
             {
@@ -116,10 +86,9 @@ public class UserManager {
         return null;
     }
 
-    public static User GetUser(string name)
+    public User GetUser(string name)
     {
-        List<User> users = ServerManager.dbManager.GetAllUsers();
-        foreach(User u in users)
+        foreach(User u in ServerManager.userDatabase.Users)
         {
             if(u.Name == name)
             {
@@ -129,11 +98,39 @@ public class UserManager {
         return null;
     }
 
-    public static int[] GetCharacters(User user)
+    public bool Login(string username, string password)
     {
-        int[] characters = user.Characters.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
-        return characters;
+        if(UserExists(username))
+        {
+            foreach(User u in ServerManager.userDatabase.Users)
+            {
+                if(u.Name == username && u.Password == password)
+                {
+                    Debug.Log("Logged In: " + u.ID.ToString() + ". " + u.Name);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
-
-    
 }
+
+public class User
+{
+    [XmlAttribute("ID")]
+    public int ID { get; set; }
+
+    [XmlAttribute("Name")]
+    public string Name { get; set; }
+
+    [XmlAttribute("Password")]
+    public string Password { get; set; }
+
+    [XmlAttribute("Email")]
+    public string Email { get; set; }
+
+    [XmlArray("Characters"), XmlArrayItem("Character")]
+    public List<Character> Characters { get; set; }
+
+}
+

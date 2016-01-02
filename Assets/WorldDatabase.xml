@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<WorldDatabase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Planets>
+    <Planet ID="0" Name="Earth">
+      <Rooms>
+        <Room ID="0" PosX="0" PosY="0" PosZ="0" ShortDescription="Earth's Spawn." LongDescription="The Spawn Point of Earth." />
+      </Rooms>
+    </Planet>
+  </Planets>
+</WorldDatabase>

@@ -11,7 +11,7 @@ public class Movement {
     public static string speed;       // The speed to travel.
 
     // The command will either be simple or complex, either consisting of just a direction or a direction with additional instruction.
-    private static string simpleMove = ",n,ne,e,se,s,sw,w,nw,north,northeast,east,southeast,south,southwest,west,northwest,u,d,up,down,en,ex,enter,exit," ;
+    private static string simpleMove = ",n,ne,e,se,s,sw,w,nw,north,northeast,east,southeast,south,southwest,west,northwest,u,d,up,down,en,ex,enter,exit,";
     private static string complexMove = ",move,walk,run,sneak,travel," ;
 
     // Processes the movement command to determine how to move the character.
@@ -22,7 +22,7 @@ public class Movement {
         if (simpleMove.Contains(","+commands[0]+","))
         {
             speed = "walk"; // For now, a simple move will assume the standard speed.
-            switch(commands[0])
+            switch (commands[0])
             {
                 case "n": case "north": direction = "north"; break;
                 case "ne": case "northeast": direction = "northeast"; break;
@@ -38,17 +38,10 @@ public class Movement {
                 case "ex": case "exit": direction = "exit"; break;
             }
         }
-    
+
         if (complexMove.Contains(","+commands[0]+","))
         {
-            switch(commands[0])
-            {
-                case "move": case "walk": speed = "walk"; break;
-                case "run": speed = "run"; break;
-                case "sneak": speed = "sneak"; break;
-                case "travel": speed = "travel"; break;
-                default: break;
-            }
+
         }
 
         // Move the character the specified direction and speed.
@@ -60,6 +53,6 @@ public class Movement {
     {
         string clientMessage = "";
         if (speed.Equals("walk")) { clientMessage = "You walk " + direction; } 
-        ServerManager.SendToClient(Data.messageType.Standard, clientMessage, id);
+        MessageManager.SendToClient(MessageManager.messageType.Standard, clientMessage, id);
     }
 }

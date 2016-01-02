@@ -31,7 +31,7 @@ public class ClientManager : MonoBehaviour {
         client.Connect(ipAddress, port); //Connect to the server Ip on this port.
         client.RegisterHandler(MsgType.Connect, OnConnected); //Register method to call on connect.
         client.RegisterHandler(MsgType.Error, OnError); //Called on network error.
-        client.RegisterHandler(Data.Msg, OnMessage); //Register method to call when message received from server.
+        client.RegisterHandler(MessageManager.Msg, OnMessage); //Register method to call when message received from server.
 	}
 
     // Update is called once per frame
@@ -64,14 +64,14 @@ public class ClientManager : MonoBehaviour {
     //When a message is received from the server.
     public void OnMessage(NetworkMessage netMsg)
     {
-        Data.Message clientMessage = netMsg.ReadMessage<Data.Message>();
+        Message clientMessage = netMsg.ReadMessage<Message>();
         string message = "";
 
-        if (clientMessage.type == Data.messageType.Standard) // Normal messages.
+        if (clientMessage.type == MessageManager.messageType.Standard) // Normal messages.
         {
             message = clientMessage.message;
         }
-        if (clientMessage.type == Data.messageType.Error) // Error messages.
+        if (clientMessage.type == MessageManager.messageType.Error) // Error messages.
         {
             message = "<b><color=yellow>" + clientMessage.message + "</color></b>";
         }
@@ -81,9 +81,9 @@ public class ClientManager : MonoBehaviour {
     //Send the string to the server.
     public void SendInput(string text)
     {
-        Data.Message msg = new Data.Message();
+        Message msg = new Message();
         msg.message = text;
-        client.Send(Data.Msg, msg);
+        client.Send(MessageManager.Msg, msg);
 
         messages.Add(text);
         scrollPosition.y = messages.Count * 100;
