@@ -41,7 +41,14 @@ public class Movement {
 
         if (complexMove.Contains(","+commands[0]+","))
         {
-
+            switch (commands[0])
+            {
+                case "move": case "walk": speed = "walk"; break;
+                case "run": speed = "run"; break;
+                case "sneak": speed = "sneak"; break;
+                case "travel": speed = "travel"; break;
+                default: break;
+            }
         }
 
         // Move the character the specified direction and speed.

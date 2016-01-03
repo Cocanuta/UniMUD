@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserDatabase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Users>
     <User ID="0" Name="Ben" Password="test" Email="test@test.com">
       <Characters>
-        <Character ID="0" Name="Cocanuta" HP="100" Location="0" />
+        <Character ID="0" Name="Cocanuta" HP="100" Location="0">
+          <Inventory />
+        </Character>
       </Characters>
     </User>
     <User ID="1" Name="David" Password="test" Email="test@test.com">

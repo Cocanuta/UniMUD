@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 public class CharacterManager {
 
-    public List<Character> OnlineCharacters;
-
     public static int GetNextID()
     {
         int id = 0;
@@ -28,7 +26,7 @@ public class CharacterManager {
         {
             if (ServerManager.userDatabase.UserExists(userID))
             {
-                ServerManager.userDatabase.GetUser(userID).Characters.Add(new Character { ID = GetNextID(), Name = name, HP = 100, Location = 0 });
+                ServerManager.userDatabase.GetUser(userID).Characters.Add(new Character { ID = GetNextID(), Name = name, HP = 100, Location = 0, Inventory = new List<Item>() });
             }
         }
     }
@@ -80,7 +78,7 @@ public class CharacterManager {
 
     public bool IsOnline(Character character)
     {
-        foreach(Character c in OnlineCharacters)
+        foreach(Character c in ServerManager.userDatabase.OnlineCharacters)
         {
             if(c.ID == character.ID)
             {
@@ -90,25 +88,28 @@ public class CharacterManager {
         return false;
     }
 
-    public void Login(Character character)
+    public void Logout(int clientID)
     {
-        if(IsOnline(character))
+        foreach(Character oc in ServerManager.userDatabase.OnlineCharacters)
         {
-            foreach(User u in ServerManager.userDatabase.Users)
+            if(oc.ClientID == clientID)
             {
-                foreach(Character c in u.Characters)
+                foreach(User u in ServerManager.userDatabase.Users)
                 {
-                    if(c.ID == character.ID)
+                    foreach(Character c in u.Characters)
                     {
-                        c.Name = character.Name;
-                        c.HP = character.HP;
-                        c.Location = c.Location;
+                        if(c.ID == oc.ID)
+                        {
+                            c.Name = oc.Name;
+                            c.HP = oc.HP;
+                            c.Location = oc.Location;
+                            c.Inventory = oc.Inventory;
+                        }
                     }
                 }
             }
         }
     }
-
 }
 
 public class Character
@@ -125,7 +126,10 @@ public class Character
     [XmlAttribute("Location")]
     public int Location { get; set; }
 
+    [XmlArray("Inventory"), XmlArrayItem("Item")]
+    public List<Item> Inventory { get; set; }
+
     [XmlIgnore]
-    public int ClientID { get; set; }
+    public int? ClientID { get; set; }
 
 }

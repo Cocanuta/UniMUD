@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using System.Text;
 
 [XmlRoot("UserDatabase")]
 public class UserManager {
@@ -10,10 +11,13 @@ public class UserManager {
     [XmlArray("Users"), XmlArrayItem("User")]
     public List<User> Users = new List<User>();
 
+    [XmlIgnore]
+    public List<Character> OnlineCharacters = new List<Character>();
+
     public void Save()
     {
         var serializer = new XmlSerializer(typeof(UserManager));
-        using (var stream = new FileStream(Path.Combine(Application.dataPath, "UserDatabase.xml"), FileMode.Create))
+        using (StreamWriter stream = new StreamWriter(Path.Combine(Application.streamingAssetsPath, "UserDatabase.xml"), false, Encoding.GetEncoding("UTF-8")))
         {
             serializer.Serialize(stream, this);
         }
@@ -22,7 +26,7 @@ public class UserManager {
     public static UserManager Load()
     {
         var serializer = new XmlSerializer(typeof(UserManager));
-        using (var stream = new FileStream(Path.Combine(Application.dataPath, "UserDatabase.xml"), FileMode.Open))
+        using (StreamReader stream = new StreamReader(Path.Combine(Application.streamingAssetsPath, "UserDatabase.xml"), Encoding.GetEncoding("UTF-8")))
         {
             return serializer.Deserialize(stream) as UserManager;
         }

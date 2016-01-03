@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ItemDatabase xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Items>
+    <Item ID="0" Name="Coffee Cup" AcceptedNames="cup,mug," DescriptionInv="A Coffee Cup." DescriptionRoom="A Coffee Cup resting on the third shelf." ExamineInv="A large Coffee cup, perfect size for a tall latte." ExamineRoom="The tall coffee cup sits atop the third shelf in the cupboard." />
+    <Item ID="1" Name="Wooden Bowl" AcceptedNames="bowl,dish," DescriptionInv="A wooden bowl." DescriptionRoom="A wooden bowl on a shelf." ExamineInv="A wooden food bowl, the perfect size for breakfast." ExamineRoom="The wooden food bowl rests on it's edge at the bottom of the cupboard." />
+  </Items>
+</ItemDatabase>

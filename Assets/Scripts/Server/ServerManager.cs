@@ -1,22 +1,42 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-using System.Collections.Generic;
+using System;
 
 public class ServerManager : MonoBehaviour {
+
+    #if UNITY_STANDALONE_WIN
+        Windows.ConsoleWindow console = new Windows.ConsoleWindow();
+        Windows.ConsoleInput input = new Windows.ConsoleInput();
+    #endif
+
+    string consoleInput;
 
     public int Port = 4444; //Server port.
 
     public static UserManager userDatabase;
+    public static ItemManager itemDatabase;
     public static WorldManager worldDatabase;
 
     // Use this for initialization
     void Awake ()
     {
+
+        if (Application.platform == RuntimePlatform.WindowsPlayer)
+        {
+            console.Initialize();
+            console.SetTitle("UniMud Server v0.0.5");
+            input.OnInputText += OnConsoleInput;
+            Application.logMessageReceived += HandleLog;
+        }
+
         Debug.Log("Starting Server...");
         userDatabase = UserManager.Load();
         Debug.Log("User/Character Database Loaded.");
+        itemDatabase = ItemManager.Load();
+        Debug.Log("Item Database Loaded.");
         worldDatabase = WorldManager.Load();
         Debug.Log("World Database Loaded.");
+
         NetworkServer.Listen(Port); //Set the servers Listen Port.
         NetworkServer.RegisterHandler(MsgType.Connect, OnConnect); //Register a method to handle Connections.
         NetworkServer.RegisterHandler(MessageManager.Msg, OnMessage); //Register a method to handle messages from clients.
@@ -25,9 +45,6 @@ public class ServerManager : MonoBehaviour {
         {
             Debug.Log("Server Started On Port " + NetworkServer.listenPort.ToString() + ".");
         }
-
-        worldDatabase.AddPlanet("Earth");
-
     }
 
     //The method that is run every time a player connects.
@@ -53,12 +70,41 @@ public class ServerManager : MonoBehaviour {
         MessageManager.ProcessMessage(clientID, fullMessage);
     }
 
+    void Update()
+    {
+        input.Update();
+    }
+
+    void OnConsoleInput(string msg)
+    {
+        MessageManager.ProcessConsole(msg);
+    }
+
+    void HandleLog(string message, string stackTrace, LogType type)
+    {
+        if (type == LogType.Warning)
+            System.Console.ForegroundColor = ConsoleColor.Yellow;
+        else if (type == LogType.Error)
+            System.Console.ForegroundColor = ConsoleColor.Red;
+        else
+            System.Console.ForegroundColor = ConsoleColor.White;
+
+        if (System.Console.CursorLeft != 0)
+            input.ClearLine();
+
+        System.Console.WriteLine(message);
+
+        input.RedrawInputLine();
+    }
+
     void OnApplicationQuit()
     {
         Debug.Log("Server Stopping...");
         NetworkServer.Shutdown();
         userDatabase.Save();
         Debug.Log("User/Character Database Saved.");
+        itemDatabase.Save();
+        Debug.Log("Item Database Saved.");
         worldDatabase.Save();
         Debug.Log("World Database Saved.");
         Debug.Log("Server Shutdown.");
